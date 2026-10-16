@@ -299,25 +299,3 @@ grep -n "end-to-end latency" "$OUT/opt13b_offload.txt"
 echo "OFFLOAD OK"
 ```
 
-## 7. What counts as a successful run
-
-All four of the following:
-
-1. Section 6.1 prints `SMOKE OK` and does not print `CUDA_ERROR_NO_BINARY_FOR_GPU`.
-2. Section 6.2 prints `INCR OK`. `llama7b_incr.txt` contains `end-to-end latency`, `num decoding steps`, `token IDs`, and English that starts with the prompt.
-3. Section 6.3 prints `SEQUENCE OK` and then `TREE OK`. Both txt files contain `end-to-end latency`.
-4. `echo $?` is 0 after each command. FlexFlow sometimes reports errors on stdout, so a txt file alone is not enough; it must contain the latency line.
-
-At that point `specinfer-ae-main` is running against `flexflow_cache` on one GPU. Section 6.4 is an extra offload path, not a prerequisite.
-
-## 8. If it fails
-
-| Symptom | Cause | Fix |
-|---|---|---|
-| `CUDA_ERROR_NO_BINARY_FOR_GPU` or `no kernel image is available` | The sm_120 `FlexFlow/build` binary was launched | Use the binaries under `build-sm89`, and put that directory on `LD_LIBRARY_PATH` |
-| Framebuffer / `fsize` allocation failure, or the process dies while requesting 70000 MB | The pool is larger than the 32 GB card | Use `FSIZE` from section 5. Do not run `basic_test_single_gpu.sh` |
-| Missing weights, tokenizer, or config | Wrong `-cache-folder`, or the model id does not match the directory | The folder must be `/root/autodl-tmp/flexflow_cache`. Pass ids such as `huggyllama/llama-7b` |
-| `libittnotify.so` or an ITT symbol error | `LD_PRELOAD` is unset | Use the `LD_PRELOAD` line in section 5 |
-| `libflexflow.so.1: cannot open shared object file` | The library path points at the old build, or not at the new one | Put `${BUILD}` at the front of `LD_LIBRARY_PATH` |
-| `cmake` prints `libcurl.so.4: no version information` | The conda libcurl and the system cmake disagree about symbol versions | Continue if `cmake version` is printed next |
-| Disk fills up during the build | About 36 GB was free on `/root/autodl-tmp` | Stop make, free space, and rebuild. Do not put the second build tree inside the 38 GB `flexflow_cache` |
