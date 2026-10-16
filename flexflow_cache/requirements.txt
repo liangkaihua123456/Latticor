@@ -1,0 +1,5 @@
+numpy>=1.24
+torch>=2.1
+transformers>=4.44
+huggingface_hub>=0.23
+accelerate>=0.27

@@ -1,0 +1,22 @@
+[
+  {
+    "repo_id": "JackFram/llama-68m",
+    "role": "candidate",
+    "revision": "9de84537b6aa98de634ad0fbb1608e9d6a019355"
+  },
+  {
+    "repo_id": "facebook/opt-125m",
+    "role": "candidate",
+    "revision": "27dcfa74d334bc871f3234de431e71c6eeba5dd6"
+  },
+  {
+    "repo_id": "huggyllama/llama-7b",
+    "role": "target",
+    "revision": "4782ad278652c7c71b72204d462d6d01eaaf7549"
+  },
+  {
+    "repo_id": "facebook/opt-13b",
+    "role": "target",
+    "revision": "e515202d1e7750da62d245fbccb2723b9c1790f5"
+  }
+]

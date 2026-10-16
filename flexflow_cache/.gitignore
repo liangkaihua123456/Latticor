@@ -1,0 +1,7 @@
+downloaded/
+cache/
+weights/
+tokenizers/
+__pycache__/
+*.pyc
+.venv/
