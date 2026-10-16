@@ -299,25 +299,3 @@ grep -n "end-to-end latency" "$OUT/opt13b_offload.txt"
 echo "OFFLOAD OK"
 ```
 
-## 7. 怎样算跑通
-
-同时满足下面四条：
-
-1. 第 6.1 节打印 `SMOKE OK`，且没有 `CUDA_ERROR_NO_BINARY_FOR_GPU`。
-2. 第 6.2 节打印 `INCR OK`。`llama7b_incr.txt` 含 `end-to-end latency`、`num decoding steps`、`token IDs`，以及以 prompt 开头的英文。
-3. 第 6.3 节依次打印 `SEQUENCE OK` 和 `TREE OK`，两个 txt 都有 `end-to-end latency`。
-4. `echo $?` 在每条命令后是 0。FlexFlow 有时把错误打在 stdout，所以不能只看有没有生成 txt；txt 里还必须有 latency 行。
-
-到这里，`specinfer-ae-main` 已经用 `flexflow_cache` 跑通单卡 SpecInfer。第 6.4 节是额外的卸载路径，不是前三步的前提。
-
-## 8. 失败时对照
-
-| 现象 | 原因 | 处理 |
-|---|---|---|
-| `CUDA_ERROR_NO_BINARY_FOR_GPU` 或 `no kernel image is available` | 跑了 sm_120 的 `FlexFlow/build` | 改用 `build-sm89` 里的二进制，并让 `LD_LIBRARY_PATH` 包含该目录 |
-| framebuffer / `fsize` 分配失败，或进程在申请 70000 MB 时退出 | 显存池大于 32 GB 卡 | 用第 5 节算出的 `FSIZE`，不要执行 `basic_test_single_gpu.sh` |
-| 找不到权重、tokenizer 或 config | `-cache-folder` 指错，或模型名对不上目录 | 必须是 `/root/autodl-tmp/flexflow_cache`。模型名用 `huggyllama/llama-7b` 这种带组织名的形式 |
-| `libittnotify.so` 或 ITT 符号错误 | 没设 `LD_PRELOAD` | 使用第 5 节的 `LD_PRELOAD` |
-| `libflexflow.so.1: cannot open shared object file` | 库路径指到旧 build，或没指到新 build | `LD_LIBRARY_PATH` 把 `${BUILD}` 放在前面 |
-| `cmake` 报 `libcurl.so.4: no version information` | conda 的 libcurl 与系统 cmake 的版本标记不同 | 只要随后打印 `cmake version` 就继续 |
-| 磁盘在编译中写满 | `/root/autodl-tmp` 只剩约 36 GB | 停掉 make，清理后再编。不要把第二个构建放进已经 38 GB 的 `flexflow_cache` |
